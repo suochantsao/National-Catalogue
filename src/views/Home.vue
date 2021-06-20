@@ -21,29 +21,76 @@
       <ul class="dropdown-menu dropdown-menu-end">
         <li><a class="dropdown-item" href="#">A to Z</a></li>
         <li><a class="dropdown-item" href="#">Z to A</a></li>
-        <li><a class="dropdown-item" href="#">All Result</a></li>
       </ul>
     </div>
 
-    <div class="listItem container p-5 my-4 col-10 d-flex">
-      <img class="w-25" src="https://restcountries.eu/data/ala.svg" alt="" srcset="">
-      <!-- <h2>National Name</h2> -->
-      <ul class="nationInfo d-flex">
-        <li><h2> Nation Name <span class="styleGrey">Native Name</span> </h2></li>
-        <!-- <li>Native Name</li>
-        <li>Native Name</li>
-        <li>Native Name</li>
-        <li>Native Name</li> -->
-      </ul>
+    <!-- Nation List -->
+    <list-item
+      :nationItem = "item"
+      :key = "item.nativeName"
+      v-for="item in nationList"
+      @nationDetail="nationInfo = $event"
+      @nationLangList="nationLang = $event"
+    ></list-item>
+
+    <!-- Modal -->
+    <item-modal
+      :nationItem = "nationInfo"
+      :langList = "nationLang"
+    ></item-modal>
+
+    <!-- Back to top Button -->
+    <div class="container text-end fw-bold pt-3">
+      <fa-icon icon="arrow-up" class="icon" />
+      <a href="#"> Back to top</a>
     </div>
+
+    <!-- Pagination -->
+    <ul class="pagination justify-content-center mt-3 mb-5">
+      <li class="page-item">
+        <a class="page-link" href="#" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+      <li class="page-item"><a class="page-link" href="#">1</a></li>
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">3</a></li>
+      <li class="page-item">
+        <a class="page-link" href="#" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    </ul>
+
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-// import HelloWorld from '@/components/HelloWorld.vue'
+// Components
+import listItem from '@/components/listItem.vue'
+import itemModal from '@/components/itemModal.vue'
 
 export default {
-  name: 'Home'
+  name: 'Home',
+  components: {
+    listItem,
+    itemModal
+  },
+  data () {
+    return {
+      nationList: null,
+      nationLang: '',
+      nationInfo: ''
+    }
+  },
+  created () {
+    const nationAPI = 'https://restcountries.eu/rest/v2/all'
+
+    this.$http
+      .get(nationAPI)
+      .then(res => {
+        this.nationList = res.data.slice(0, 25)
+      })
+  }
 }
 </script>
