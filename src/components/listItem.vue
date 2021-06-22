@@ -4,7 +4,7 @@
       <img class="w-25" :src="nationItem.flag" alt="" srcset="">
       <ul class="nationInfo d-flex flex-wrap">
         <li class="w-100 py-4">
-          <h2 @click="selectItem"><a v-b-modal.modal-lg>{{nationItem.name}} </a><span class="styleGrey ms-3">{{nationItem.nativeName}}</span></h2>
+          <h2><a @click="selectItem" v-b-modal.modal-lg>{{nationItem.name}} </a><span class="styleGrey ms-3">{{nationItem.nativeName}}</span></h2>
         </li>
         <li class="w-100"><span class="fw-bold">Alt Spellings : </span>{{altList}}</li>
         <li class="w-25"><span class="fw-bold">Calling Codes : </span>{{nationItem.callingCodes[0]}}</li>

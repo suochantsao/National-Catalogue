@@ -2,7 +2,7 @@
   <div class="homePage">
 
     <header class="container mt-5 mb-4">
-      <h1><a href="#">National Catalogue</a></h1>
+      <h1 @click="reload"><a href="#">National Catalogue</a></h1>
     </header>
 
     <nav class="bgStyle py-4">
@@ -16,21 +16,22 @@
     <div class="container my-3 text-end">
       <span class="me-2">Sort by : </span>
       <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        A to Z
+        {{sortBtn}}
       </button>
       <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="#">A to Z</a></li>
-        <li><a class="dropdown-item" href="#">Z to A</a></li>
+        <li @click="reverseList(false)"><a class="dropdown-item" href="#">A to Z</a></li>
+        <li @click="reverseList(true)"><a class="dropdown-item" href="#">Z to A</a></li>
       </ul>
     </div>
 
     <!-- Nation List -->
     <list-item
       :nationItem = "item"
-      :key = "item.nativeName"
       v-for="item in nationList"
+      :key = "item.nativeName"
       @nationDetail="nationInfo = $event"
       @nationLangList="nationLang = $event"
+      id="nation-list"
     ></list-item>
 
     <!-- Modal -->
@@ -46,21 +47,14 @@
     </div>
 
     <!-- Pagination -->
-    <ul class="pagination justify-content-center mt-3 mb-5">
-      <li class="page-item">
-        <a class="page-link" href="#" aria-label="Previous">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      </li>
-      <li class="page-item"><a class="page-link" href="#">1</a></li>
-      <li class="page-item"><a class="page-link" href="#">2</a></li>
-      <li class="page-item"><a class="page-link" href="#">3</a></li>
-      <li class="page-item">
-        <a class="page-link" href="#" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      </li>
-    </ul>
+    <b-pagination
+        v-model="currentPage"
+        :total-rows="rows"
+        :per-page="perPage"
+        last-number
+        class="justify-content-center mt-3 mb-5"
+        @click.native="scrollToTop()"
+    ></b-pagination>
 
   </div>
 </template>
@@ -76,11 +70,37 @@ export default {
     listItem,
     itemModal
   },
+  methods: {
+    scrollToTop () {
+      window.scrollTo(0, 0)
+    },
+    reload () {
+      window.location.reload()
+    },
+    reverseList (bol) {
+      if (bol === true && bol !== this.sortStatus) {
+        this.listAry.reverse()
+        this.sortStatus = true
+        this.sortBtn = 'Z to A'
+        this.currentPage = 1
+      } else if (bol === false & bol !== this.sortStatus) {
+        this.listAry.reverse()
+        this.sortStatus = false
+        this.sortBtn = 'A to Z'
+        this.currentPage = 1
+      }
+    }
+  },
   data () {
     return {
-      nationList: null,
+      listAry: [],
       nationLang: '',
-      nationInfo: ''
+      nationInfo: '',
+      rows: '',
+      perPage: 25,
+      currentPage: 1,
+      sortBtn: 'A to Z',
+      sortStatus: false
     }
   },
   created () {
@@ -89,8 +109,18 @@ export default {
     this.$http
       .get(nationAPI)
       .then(res => {
-        this.nationList = res.data.slice(0, 25)
+        this.listAry = res.data
+        this.rows = res.data.length
       })
+  },
+  computed: {
+    nationList () {
+      const items = this.listAry
+      return items.slice(
+        (this.currentPage - 1) * this.perPage,
+        this.currentPage * this.perPage
+      )
+    }
   }
 }
 </script>
