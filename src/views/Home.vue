@@ -6,10 +6,14 @@
     </header>
 
     <nav class="bgStyle py-4">
-      <form class="container d-flex">
-        <input class="form-control me-4" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-light px-5" type="submit">Search</button>
-      </form>
+      <div class="container d-flex">
+        <input
+          placeholder="Search Nation Name"
+          class="form-control me-4"
+          v-model="keyWord"
+          type="search"
+        >
+      </div>
     </nav>
 
     <!-- Sort Button -->
@@ -27,7 +31,7 @@
     <!-- Nation List -->
     <list-item
       :nationItem = "item"
-      v-for="item in nationList"
+      v-for="item in searchResult()"
       :key = "item.nativeName"
       @nationDetail="nationInfo = $event"
       @nationLangList="nationLang = $event"
@@ -79,16 +83,19 @@ export default {
     },
     reverseList (bol) {
       if (bol === true && bol !== this.sortStatus) {
-        this.listAry.reverse()
-        this.sortStatus = true
         this.sortBtn = 'Z to A'
-        this.currentPage = 1
       } else if (bol === false & bol !== this.sortStatus) {
-        this.listAry.reverse()
-        this.sortStatus = false
         this.sortBtn = 'A to Z'
-        this.currentPage = 1
       }
+      this.listAry.reverse()
+      this.currentPage = 1
+      this.sortStatus = !this.sortStatus
+    },
+    searchResult () {
+      if (!this.keyWord) {
+        return this.nationList
+      }
+      return this.search
     }
   },
   data () {
@@ -96,6 +103,7 @@ export default {
       listAry: [],
       nationLang: '',
       nationInfo: '',
+      keyWord: '',
       rows: '',
       perPage: 25,
       currentPage: 1,
@@ -110,6 +118,7 @@ export default {
       .get(nationAPI)
       .then(res => {
         this.listAry = res.data
+        console.log(this.listAry[0].name)
         this.rows = res.data.length
       })
   },
@@ -120,6 +129,12 @@ export default {
         (this.currentPage - 1) * this.perPage,
         this.currentPage * this.perPage
       )
+    },
+    search () {
+      return this.listAry.filter((value) => {
+        const key = value.name.toLowerCase()
+        return key.includes(this.keyWord.toLowerCase())
+      })
     }
   }
 }
